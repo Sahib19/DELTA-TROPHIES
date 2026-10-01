@@ -22,6 +22,8 @@
     "catalog:seed": "tsx scripts/seed-catalog.ts",
     "catalog:import": "tsx scripts/import-cloudinary-catalog.ts",
     "catalog:replace": "tsx scripts/replace-catalog.ts",
+    "catalog:export": "tsx scripts/export-catalogue.ts",
+    "catalog:publish": "tsx scripts/export-catalogue.ts --upload",
     "catalog:seo": "tsx scripts/apply-catalog-seo.ts",
     "seo:audit": "tsx scripts/audit-seo.ts"
   },

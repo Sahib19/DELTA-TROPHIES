@@ -3,7 +3,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import {
-  apiBaseUrl,
   DEFAULT_SOCIAL_IMAGE,
   escapeHtml,
   jsonLd,
@@ -12,6 +11,7 @@ import {
   SITE_URL,
   STATIC_PAGE_SEO,
 } from "./_seo-shared.js";
+import { findCatalogueProduct, loadCatalogue } from "./_catalogue.js";
 
 const shellCandidates = [
   path.join(process.cwd(), "dist", "index.html"),
@@ -38,24 +38,6 @@ async function loadShell() {
 
 function queryValue(value) {
   return Array.isArray(value) ? value[0] : value;
-}
-
-async function fetchApi(pathname) {
-  const baseUrl = apiBaseUrl();
-  if (!baseUrl)
-    throw new Error(
-      "VITE_API_URL is required for server-rendered catalogue SEO",
-    );
-  const response = await fetch(`${baseUrl}${pathname}`, {
-    headers: { Accept: "application/json" },
-    signal: AbortSignal.timeout(8_000),
-  });
-  if (!response.ok) {
-    const error = new Error(`Catalogue API responded ${response.status}`);
-    error.status = response.status;
-    throw error;
-  }
-  return response.json();
 }
 
 function organizationNode() {
@@ -223,8 +205,8 @@ async function collectionMetadata(categorySlug, modelCode) {
     return { metadata, structuredData: pageGraph(metadata) };
   }
 
-  const payload = await fetchApi("/categories");
-  const category = (payload.categories || []).find(
+  const catalogue = await loadCatalogue();
+  const category = catalogue.categories.find(
     (item) => item.slug === categorySlug,
   );
   if (!category) return null;
@@ -275,10 +257,7 @@ export default async function handler(request, response) {
 
   try {
     if (segments[0] === "products" && segments[1]) {
-      const payload = await fetchApi(
-        `/products/${encodeURIComponent(segments[1])}`,
-      );
-      const product = payload.product;
+      const product = findCatalogueProduct(await loadCatalogue(), segments[1]);
       const canonicalPath = productPath(product);
       if (segments[2] !== product.slug) {
         redirect(response, canonicalPath);
@@ -299,10 +278,8 @@ export default async function handler(request, response) {
       segments[1] &&
       /^[a-f\d]{24}$/i.test(segments[1])
     ) {
-      const payload = await fetchApi(
-        `/products/${encodeURIComponent(segments[1])}`,
-      );
-      redirect(response, productPath(payload.product));
+      const product = findCatalogueProduct(await loadCatalogue(), segments[1]);
+      redirect(response, productPath(product));
       return;
     }
 

@@ -27,6 +27,12 @@ function errorMessage(error, fallback) {
   return error.response?.data?.error || fallback;
 }
 
+function saveNotice(response, successMessage) {
+  return response.data.catalogue?.published === false
+    ? `${successMessage} Public catalogue refresh failed; use Publish Catalogue on the Dashboard to retry.`
+    : `${successMessage} Public catalogue refreshed.`;
+}
+
 function ManageProducts() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -166,7 +172,7 @@ function ManageProducts() {
         data.append(key, String(value));
       });
       images.forEach((image) => data.append("images", image));
-      await API.post("/products", data, {
+      const response = await API.post("/products", data, {
         onUploadProgress: (progressEvent) => {
           if (progressEvent.total)
             setUploadProgress(
@@ -179,7 +185,12 @@ function ManageProducts() {
       );
       resetForm();
       setShowForm(false);
-      setNotice("Product and original image saved successfully in Cloudinary.");
+      setNotice(
+        saveNotice(
+          response,
+          "Product and original image saved successfully in Cloudinary.",
+        ),
+      );
       if (selected) setSelectedCategory(selected.slug);
       setPage(1);
       refreshCatalog();
@@ -201,8 +212,13 @@ function ManageProducts() {
     setError("");
     setNotice("");
     try {
-      await API.delete(`/products/${product.id}`);
-      setNotice("Product and its Cloudinary image were deleted successfully.");
+      const response = await API.delete(`/products/${product.id}`);
+      setNotice(
+        saveNotice(
+          response,
+          "Product and its Cloudinary image were deleted successfully.",
+        ),
+      );
       if (products.length === 1 && page > 1) setPage((current) => current - 1);
       refreshCatalog();
     } catch (requestError) {
@@ -287,19 +303,24 @@ function ManageProducts() {
       if (targetCategory?.slug !== SPECIAL_CATEGORY_SLUG) {
         delete payload.model_group;
       }
-      await API.patch(`/products/${editingProduct.id}`, payload);
+      const response = await API.patch(`/products/${editingProduct.id}`, payload);
       if (quickEdit && nextProduct) {
         if (nextPage !== page) setPage(nextPage);
         openEditModal(nextProduct, { clearName: true });
-        setNotice("Product saved. Next product is ready to edit.");
+        setNotice(
+          saveNotice(response, "Product saved. Next product is ready to edit."),
+        );
       } else {
         setEditingProduct(null);
         setNotice(
-          nextLookupFailed
+          saveNotice(
+            response,
+            nextLookupFailed
             ? "Product saved, but the next product could not be loaded. Please select it manually."
             : quickEdit
               ? "Product saved. No next product in this list."
               : "Product details updated successfully.",
+          ),
         );
       }
       setError("");

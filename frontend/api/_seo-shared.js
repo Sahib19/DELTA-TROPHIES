@@ -1,5 +1,3 @@
-/* global process */
-
 export const SITE_URL = "https://www.deltatrophies.com";
 export const SITE_NAME = "Delta Industries";
 export const DEFAULT_SOCIAL_IMAGE =
@@ -50,16 +48,6 @@ export const STATIC_PAGE_SEO = {
     canonicalPath: "/bulk-enquiry",
   },
 };
-
-export function apiBaseUrl() {
-  const configured = (
-    process.env.VITE_API_URL ||
-    process.env.API_URL ||
-    ""
-  ).replace(/\/+$/, "");
-  if (!configured) return "";
-  return configured.endsWith("/api/v1") ? configured : `${configured}/api/v1`;
-}
 
 export function productPath(product) {
   return `/products/${encodeURIComponent(product.id)}/${encodeURIComponent(product.slug)}`;

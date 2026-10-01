@@ -2,7 +2,11 @@ import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import API from "../api/axios";
-import getWithRetry from "../api/getWithRetry";
+import {
+  getCatalogueProduct,
+  getCatalogueProducts,
+  subscribeCatalogue,
+} from "../api/catalogue";
 import getImageUrl, { getOptimizedImageUrl } from "../utils/getImageUrl";
 import { jsonLd, productPath, SITE_NAME, SITE_URL } from "../config/seo";
 import ProductCard from "../components/ProductCard";
@@ -34,9 +38,18 @@ function ProductDetail() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [catalogueRevision, setCatalogueRevision] = useState(0);
+
+  useEffect(
+    () =>
+      subscribeCatalogue(() =>
+        setCatalogueRevision((current) => current + 1),
+      ),
+    [],
+  );
 
   useEffect(() => {
-    const controller = new AbortController();
+    let cancelled = false;
     const fetchProduct = async () => {
       setLoading(true);
       setProduct(null);
@@ -46,22 +59,23 @@ function ProductDetail() {
       setSubmitted(false);
       setSubmitError("");
       try {
-        const res = await getWithRetry(`/products/${id}`, {
-          signal: controller.signal,
-        });
-        setProduct(res.data.product);
+        const result = await getCatalogueProduct(id);
+        if (cancelled || !result) return;
+        setProduct(result.product);
         setProductNavigation(
-          res.data.navigation || { previous: null, next: null },
+          result.navigation || { previous: null, next: null },
         );
       } catch (error) {
-        if (error.code !== "ERR_CANCELED") console.error(error);
+        if (!cancelled) console.error(error);
       } finally {
-        if (!controller.signal.aborted) setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
     void fetchProduct();
-    return () => controller.abort();
-  }, [id]);
+    return () => {
+      cancelled = true;
+    };
+  }, [id, catalogueRevision]);
 
   useEffect(() => {
     if (!product) return;
@@ -71,24 +85,28 @@ function ProductDetail() {
 
   useEffect(() => {
     if (!product?.category_slug) return undefined;
-    const controller = new AbortController();
+    let cancelled = false;
     const fetchRelated = async () => {
       try {
-        const response = await getWithRetry("/products", {
-          params: { category: product.category_slug, page: 1, limit: 5 },
-          signal: controller.signal,
+        const result = await getCatalogueProducts({
+          category: product.category_slug,
+          page: 1,
+          limit: 5,
         });
-        setRelatedProducts(
-          response.data.products
+        if (!cancelled)
+          setRelatedProducts(
+          result.products
             .filter((item) => item.id !== product.id)
             .slice(0, 4),
         );
       } catch (error) {
-        if (error.code !== "ERR_CANCELED") console.error(error);
+        if (!cancelled) console.error(error);
       }
     };
     void fetchRelated();
-    return () => controller.abort();
+    return () => {
+      cancelled = true;
+    };
   }, [product]);
 
   const handleSubmit = async (e) => {

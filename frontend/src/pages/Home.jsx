@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import getWithRetry from "../api/getWithRetry";
+import {
+  getCatalogueCategories,
+  getCatalogueProducts,
+  subscribeCatalogue,
+} from "../api/catalogue";
 import HeroVideo from "../components/HeroVideo";
 import ProductCard from "../components/ProductCard";
 import getImageUrl, { getOptimizedImageUrl } from "../utils/getImageUrl";
@@ -44,27 +48,36 @@ const websiteSchema = {
 function Home() {
   const [categories, setCategories] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [catalogueRevision, setCatalogueRevision] = useState(0);
+
+  useEffect(
+    () =>
+      subscribeCatalogue(() =>
+        setCatalogueRevision((current) => current + 1),
+      ),
+    [],
+  );
 
   useEffect(() => {
-    const controller = new AbortController();
+    let cancelled = false;
     const fetchData = async () => {
       try {
-        const [catRes, prodRes] = await Promise.all([
-          getWithRetry("/categories", { signal: controller.signal }),
-          getWithRetry("/products", {
-            params: { page: 1, limit: 6 },
-            signal: controller.signal,
-          }),
+        const [nextCategories, productResult] = await Promise.all([
+          getCatalogueCategories(),
+          getCatalogueProducts({ page: 1, limit: 6 }),
         ]);
-        setCategories(catRes.data.categories);
-        setFeaturedProducts(prodRes.data.products);
+        if (cancelled) return;
+        setCategories(nextCategories);
+        setFeaturedProducts(productResult.products);
       } catch (error) {
-        if (error.code !== "ERR_CANCELED") console.error(error);
+        if (!cancelled) console.error(error);
       }
     };
     void fetchData();
-    return () => controller.abort();
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [catalogueRevision]);
 
   return (
     <div className="bg-darkbg w-full min-h-screen text-white font-sans overflow-x-hidden selection:bg-gold/30 selection:text-white">

@@ -9,6 +9,8 @@ import {
 function Dashboard() {
   const [stats, setStats] = useState({ products: 0, leads: 0, inquiries: 0 });
   const [quickEdit, setQuickEdit] = useState(isQuickEditEnabled);
+  const [publishingCatalogue, setPublishingCatalogue] = useState(false);
+  const [catalogueMessage, setCatalogueMessage] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,6 +41,27 @@ function Dashboard() {
     const enabled = !quickEdit;
     setQuickEditEnabled(enabled);
     setQuickEdit(enabled);
+  };
+
+  const handlePublishCatalogue = async () => {
+    setPublishingCatalogue(true);
+    setCatalogueMessage("");
+    try {
+      const response = await API.post('/admin/catalogue/publish');
+      const publishedAt = response.data.catalogue?.generated_at;
+      setCatalogueMessage(
+        publishedAt
+          ? `Public catalogue refreshed at ${new Date(publishedAt).toLocaleString()}.`
+          : 'Public catalogue refreshed successfully.',
+      );
+    } catch (error) {
+      setCatalogueMessage(
+        error.response?.data?.error ||
+          'Catalogue publish failed. Please try again.',
+      );
+    } finally {
+      setPublishingCatalogue(false);
+    }
   };
 
   return (
@@ -94,6 +117,34 @@ function Dashboard() {
             className={`shrink-0 border px-6 py-3 text-xs font-bold uppercase tracking-widest transition-colors ${quickEdit ? 'border-gold bg-gold text-darkbg' : 'border-gold/30 text-gold hover:border-gold'}`}
           >
             {quickEdit ? 'On' : 'Off'}
+          </button>
+        </div>
+
+        <div className="mb-12 flex flex-col gap-5 border border-gold/25 bg-white/[0.03] p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-gold text-xs font-semibold uppercase tracking-[0.2em]">
+              Public catalogue snapshot
+            </p>
+            <h2 className="mt-2 text-lg font-semibold text-white">
+              Publish catalogue
+            </h2>
+            <p className="mt-1 max-w-2xl text-sm text-white/55">
+              Product changes publish automatically. Use this button to retry
+              manually if the public catalogue ever falls behind.
+            </p>
+            {catalogueMessage && (
+              <p className="mt-3 text-sm text-gold" role="status">
+                {catalogueMessage}
+              </p>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={handlePublishCatalogue}
+            disabled={publishingCatalogue}
+            className="shrink-0 border border-gold/30 px-6 py-3 text-xs font-bold uppercase tracking-widest text-gold transition-colors hover:border-gold disabled:cursor-wait disabled:opacity-50"
+          >
+            {publishingCatalogue ? 'Publishing…' : 'Publish now'}
           </button>
         </div>
 

@@ -34,6 +34,7 @@ export interface ProductDto {
   category_slug: string | null;
   material: string | null;
   model_group: 'LA' | 'F' | 'RA' | 'ACA' | null;
+  search_terms: string[];
   in_stock: boolean;
   images: string[];
   seo_title: string;
@@ -80,6 +81,7 @@ function toProductDto(product: ProductLean): ProductDto {
     category_slug: product.category?.slug ?? null,
     material: product.material ?? null,
     model_group: product.modelGroup ?? null,
+    search_terms: product.searchTerms ?? [],
     in_stock: product.inStock,
     images: product.images.map((image) => image.url),
     seo_title: buildProductSeoTitle(product.name, product.sku),
@@ -207,6 +209,16 @@ export async function listProducts(query: ProductListRequest['query']): Promise<
       pages: total === 0 ? 0 : Math.ceil(total / query.limit),
     },
   };
+}
+
+export async function listAllActiveProducts(): Promise<ProductDto[]> {
+  const documents = await ProductModel.find({ isActive: true })
+    .populate('category', 'name slug')
+    .sort({ displayOrder: 1, _id: 1 })
+    .lean()
+    .exec();
+
+  return (documents as unknown as ProductLean[]).map(toProductDto);
 }
 
 export async function getProduct(id: string): Promise<ProductDto> {

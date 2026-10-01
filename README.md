@@ -1,6 +1,6 @@
 # Delta Trophies
 
-Production catalogue and lead-management platform for Delta Industries. The existing React UI is backed by a new, versioned MongoDB API built with TypeScript, Express, Mongoose and Node.js.
+Production catalogue and lead-management platform for Delta Industries. Public catalogue reads use a versioned CDN snapshot, while authenticated administration and enquiries use the MongoDB API built with TypeScript, Express, Mongoose and Node.js.
 
 ## Architecture
 
@@ -20,6 +20,20 @@ backend/
 └── test/          # Vitest and Supertest checks
 frontend/          # Existing React/Vite presentation layer
 ```
+
+### Public catalogue delivery
+
+`frontend/public/catalogue.json` is a deployment-safe snapshot of all active products and categories. The browser renders this snapshot immediately, then refreshes it in the background from the Cloudinary raw asset at `deltatrophies/catalog/catalogue.json`. Product images continue to load directly from Cloudinary.
+
+Successful product and category mutations automatically republish the Cloudinary snapshot. A failed publication does not roll back or duplicate the database mutation; the admin response shows a warning and the Dashboard's **Publish catalogue** action can retry it. Server-rendered product metadata and the sitemap use the same snapshot with the bundled file as their fallback, so public catalogue pages do not wait for a sleeping Render service.
+
+Refresh the committed fallback after catalogue maintenance with:
+
+```text
+npm run catalog:export --prefix backend
+```
+
+To refresh both the fallback file and Cloudinary asset, run `npm run catalog:publish --prefix backend`.
 
 ## Local development
 
@@ -41,7 +55,7 @@ Run `npm run check` at the repository root before release. It performs backend t
 
 For production, use a unique 32+ character JWT secret, exact frontend origins, TLS-enabled MongoDB Atlas, Cloudinary credentials, and a secret manager supplied by the hosting platform. Build and run the API directly with `npm run build --prefix backend` and `npm start --prefix backend`.
 
-For the Vercel frontend, set `VITE_API_URL` to the public HTTPS backend origin (no `/api/v1` suffix). The build now fails when this is missing or points to localhost; both the browser catalogue and server-rendered product metadata/sitemap depend on it. Set backend `APP_ORIGINS` to the exact production frontend origin, `https://www.deltatrophies.com` (plus any explicitly supported preview origins). The canonical host is `www.deltatrophies.com`; the apex domain should continue redirecting there.
+For the Vercel frontend, set `VITE_API_URL` to the public HTTPS backend origin (no `/api/v1` suffix). It is used by admin, lead and enquiry actions; public catalogue reads do not depend on it. `VITE_CATALOGUE_URL` is optional and defaults to Delta Industries' Cloudinary catalogue asset. Set backend `APP_ORIGINS` to the exact production frontend origin, `https://www.deltatrophies.com` (plus any explicitly supported preview origins). The canonical host is `www.deltatrophies.com`; the apex domain should continue redirecting there.
 
 After deployment, confirm that a product URL returns its current product name in `<title>`, an old product slug redirects to the current slug, and `/sitemap.xml` includes all active products and categories. Run `npm run seo:audit --prefix backend` against the production catalogue before release; it must report zero errors and warnings.
 

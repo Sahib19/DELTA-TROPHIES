@@ -1,10 +1,10 @@
 import {
-  apiBaseUrl,
   escapeXml,
   productPath,
   SITE_URL,
   STATIC_PAGE_SEO,
 } from "./_seo-shared.js";
+import { loadCatalogue } from "./_catalogue.js";
 
 function sitemapEntry({ path, lastModified, images = [] }) {
   const lastmod = lastModified
@@ -20,45 +20,13 @@ function sitemapEntry({ path, lastModified, images = [] }) {
   return `<url><loc>${escapeXml(`${SITE_URL}${path}`)}</loc>${lastmod}${imageMarkup}</url>`;
 }
 
-async function fetchJson(url) {
-  const response = await fetch(url, {
-    headers: { Accept: "application/json" },
-    signal: AbortSignal.timeout(8_000),
-  });
-  if (!response.ok) throw new Error(`Catalogue responded ${response.status}`);
-  return response.json();
-}
-
-async function fetchAllProducts(baseUrl) {
-  const products = [];
-  for (let page = 1; products.length < 50_000; page += 1) {
-    const payload = await fetchJson(
-      `${baseUrl}/products?page=${page}&limit=1000`,
-    );
-    products.push(...(payload.products || []));
-    if (page >= (payload.pagination?.pages || 1)) break;
-  }
-  return products;
-}
-
 export default async function handler(_request, response) {
   const entries = Object.values(STATIC_PAGE_SEO).map(({ canonicalPath }) =>
     sitemapEntry({ path: canonicalPath }),
   );
-  const baseUrl = apiBaseUrl();
-
-  if (!baseUrl) {
-    response.setHeader("Cache-Control", "no-store");
-    response.status(503).send("Sitemap temporarily unavailable");
-    return;
-  }
-
   try {
-    const [products, categoryPayload] = await Promise.all([
-      fetchAllProducts(baseUrl),
-      fetchJson(`${baseUrl}/categories`),
-    ]);
-    for (const category of categoryPayload.categories || []) {
+    const catalogue = await loadCatalogue();
+    for (const category of catalogue.categories) {
       entries.push(
         sitemapEntry({
           path: `/collections?category=${encodeURIComponent(category.slug)}`,
@@ -74,7 +42,7 @@ export default async function handler(_request, response) {
         }
       }
     }
-    for (const product of products) {
+    for (const product of catalogue.products) {
       if (!product.id || !product.slug) continue;
       entries.push(
         sitemapEntry({

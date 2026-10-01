@@ -8,6 +8,7 @@ import {
   updateProduct as updateProductRecord,
 } from '../services/product.service.js';
 import { uploadProductImages } from '../services/image.service.js';
+import { publishCatalogueSafely } from '../services/catalogue-publication.service.js';
 import { ApiError } from '../utils/api-error.js';
 import type {
   CreateProductRequest,
@@ -47,22 +48,30 @@ export const createProduct: RequestHandler = async (request, response) => {
   }
   const categoryFolder = await getProductUploadFolder(body.category_id);
   const images = await uploadProductImages(files, categoryFolder);
+  const product = await createProductRecord(body, images);
   response.status(201).json({
     success: true,
-    product: await createProductRecord(body, images),
+    product,
+    catalogue: await publishCatalogueSafely(),
   });
 };
 
 export const updateProduct: RequestHandler = async (_request, response) => {
   const validated = response.locals.validated as UpdateProductRequest;
+  const product = await updateProductRecord(validated.params.id, validated.body);
   response.status(200).json({
     success: true,
-    product: await updateProductRecord(validated.params.id, validated.body),
+    product,
+    catalogue: await publishCatalogueSafely(),
   });
 };
 
 export const deleteProduct: RequestHandler = async (_request, response) => {
   const { id } = (response.locals.validated as ProductIdRequest).params;
   await deleteProductRecord(id);
-  response.status(200).json({ success: true, message: 'Product deleted' });
+  response.status(200).json({
+    success: true,
+    message: 'Product deleted',
+    catalogue: await publishCatalogueSafely(),
+  });
 };

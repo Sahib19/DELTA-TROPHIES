@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import API from "../api/axios";
-import getWithRetry from "../api/getWithRetry";
+import {
+  getCatalogueCategories,
+  getCatalogueProducts,
+  subscribeCatalogue,
+} from "../api/catalogue";
 import ProductCard from "../components/ProductCard";
 import FilterSidebar from "../components/FilterSidebar";
 import { SITE_NAME } from "../config/seo";
@@ -43,7 +46,6 @@ function Shop() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [loadError, setLoadError] = useState("");
-  const [wakingCatalogue, setWakingCatalogue] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
   const [pagination, setPagination] = useState({ page: 1, pages: 0, total: 0 });
   const [searchQuery, setSearchQuery] = useState("");
@@ -51,6 +53,11 @@ function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const productRequestVersion = useRef(0);
+
+  useEffect(
+    () => subscribeCatalogue(() => setRetryKey((current) => current + 1)),
+    [],
+  );
 
   const selectedCategory = searchParams.get("category") || "all";
   const requestedModel = searchParams.get("model")?.toUpperCase();
@@ -66,47 +73,39 @@ function Shop() {
   }, [searchQuery]);
 
   useEffect(() => {
-    const controller = new AbortController();
+    let cancelled = false;
     const fetchCategories = async () => {
       try {
-        const res = await getWithRetry("/categories", {
-          signal: controller.signal,
-        });
-        setCategories(res.data.categories);
+        const nextCategories = await getCatalogueCategories();
+        if (!cancelled) setCategories(nextCategories);
       } catch (error) {
-        if (error.code !== "ERR_CANCELED") console.error(error);
+        if (!cancelled) console.error(error);
       }
     };
     void fetchCategories();
-    return () => controller.abort();
+    return () => {
+      cancelled = true;
+    };
   }, [retryKey]);
 
   useEffect(() => {
-    const controller = new AbortController();
+    let cancelled = false;
     const requestVersion = productRequestVersion.current + 1;
     productRequestVersion.current = requestVersion;
     const fetchProducts = async () => {
       setLoading(true);
       setLoadingMore(false);
       setLoadError("");
-      setWakingCatalogue(false);
       try {
         const params = { page: 1, limit: pageSizeFor(selectedCategory) };
         if (selectedCategory !== "all") params.category = selectedCategory;
         if (debouncedSearch) params.search = debouncedSearch;
-        const res = await getWithRetry(
-          "/products",
-          { params, signal: controller.signal },
-          { onRetry: () => setWakingCatalogue(true) },
-        );
-        if (requestVersion !== productRequestVersion.current) return;
-        setProducts(res.data.products);
-        setPagination(res.data.pagination);
+        const result = await getCatalogueProducts(params);
+        if (cancelled || requestVersion !== productRequestVersion.current) return;
+        setProducts(result.products);
+        setPagination(result.pagination);
       } catch (error) {
-        if (
-          error.code !== "ERR_CANCELED" &&
-          requestVersion === productRequestVersion.current
-        ) {
+        if (!cancelled && requestVersion === productRequestVersion.current) {
           console.error(error);
           setProducts([]);
           setPagination({ page: 1, pages: 0, total: 0 });
@@ -114,16 +113,17 @@ function Shop() {
         }
       } finally {
         if (
-          !controller.signal.aborted &&
+          !cancelled &&
           requestVersion === productRequestVersion.current
         ) {
           setLoading(false);
-          setWakingCatalogue(false);
         }
       }
     };
     void fetchProducts();
-    return () => controller.abort();
+    return () => {
+      cancelled = true;
+    };
   }, [selectedCategory, debouncedSearch, retryKey]);
 
   const handleShowMore = async () => {
@@ -138,7 +138,7 @@ function Shop() {
       };
       if (selectedCategory !== "all") params.category = selectedCategory;
       if (debouncedSearch) params.search = debouncedSearch;
-      const res = await API.get("/products", { params });
+      const result = await getCatalogueProducts(params);
       if (requestVersion !== productRequestVersion.current) return;
       setProducts((currentProducts) => {
         const existingIds = new Set(
@@ -146,12 +146,12 @@ function Shop() {
         );
         return [
           ...currentProducts,
-          ...res.data.products.filter(
+          ...result.products.filter(
             (product) => !existingIds.has(product.id),
           ),
         ];
       });
-      setPagination(res.data.pagination);
+      setPagination(result.pagination);
     } catch (error) {
       if (requestVersion !== productRequestVersion.current) return;
       console.error(error);
@@ -310,9 +310,7 @@ function Shop() {
             {loading ? (
               <div className="flex items-center justify-center py-20">
                 <p className="text-white/30 tracking-widest uppercase text-sm">
-                  {wakingCatalogue
-                    ? "Preparing the catalogue..."
-                    : "Loading..."}
+                  Loading...
                 </p>
               </div>
             ) : loadError && products.length === 0 ? (

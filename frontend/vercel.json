@@ -2,10 +2,11 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
     "api/render.js": {
-      "includeFiles": "dist/index.html",
+      "includeFiles": "dist/**",
       "maxDuration": 10
     },
     "api/sitemap.js": {
+      "includeFiles": "dist/**",
       "maxDuration": 10
     }
   },
@@ -25,6 +26,15 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/catalogue.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, s-maxage=31536000"
         }
       ]
     },
