@@ -184,7 +184,6 @@ function Home() {
       </section>
 
       {/* Categories Section */}
-      {/* Categories Carousel */}
       <div className="bg-darkbg w-full">
         <section className="max-w-7xl mx-auto px-6 py-20">
           <div className="flex items-end justify-between mb-12">
@@ -204,18 +203,12 @@ function Home() {
             </Link>
           </div>
 
-          {/* Carousel Track */}
-          <div className="relative">
-            <div
-              id="category-carousel"
-              className="flex gap-4 overflow-x-auto scroll-smooth pb-4"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-            >
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {categories.map((category) => (
                 <Link
                   key={category.id}
                   to={`/collections?category=${category.slug}`}
-                  className="group relative flex-shrink-0 w-64 h-80 overflow-hidden border border-gold/20 hover:border-gold transition-all duration-300 bg-white flex flex-col"
+                  className="group relative flex h-80 min-w-0 flex-col overflow-hidden border border-gold/20 bg-white transition-all duration-300 hover:border-gold"
                 >
                   {/* Photo area */}
                   <div className="flex-1 flex items-center justify-center overflow-hidden">
@@ -255,29 +248,6 @@ function Home() {
                   <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-gold/40 group-hover:border-gold transition-colors duration-300 z-10" />
                 </Link>
               ))}
-            </div>
-
-            {/* Left/Right scroll buttons */}
-            <button
-              onClick={() =>
-                document
-                  .getElementById("category-carousel")
-                  .scrollBy({ left: -280, behavior: "smooth" })
-              }
-              className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-darkbg border border-gold/30 text-gold items-center justify-center hover:bg-gold hover:text-darkbg transition-colors z-10"
-            >
-              ←
-            </button>
-            <button
-              onClick={() =>
-                document
-                  .getElementById("category-carousel")
-                  .scrollBy({ left: 280, behavior: "smooth" })
-              }
-              className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-darkbg border border-gold/30 text-gold items-center justify-center hover:bg-gold hover:text-darkbg transition-colors z-10"
-            >
-              →
-            </button>
           </div>
         </section>
       </div>
