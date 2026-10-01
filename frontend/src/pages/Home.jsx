@@ -8,6 +8,7 @@ import {
 } from "../api/catalogue";
 import HeroVideo from "../components/HeroVideo";
 import ProductCard from "../components/ProductCard";
+import ReviewCarousel from "../components/ReviewCarousel";
 import getImageUrl, { getOptimizedImageUrl } from "../utils/getImageUrl";
 import { CONTACT } from "../config/contact";
 import { SITE_NAME, SITE_URL } from "../config/seo";
@@ -64,7 +65,7 @@ function Home() {
       try {
         const [nextCategories, productResult] = await Promise.all([
           getCatalogueCategories(),
-          getCatalogueProducts({ page: 1, limit: 6 }),
+          getCatalogueProducts({ page: 1, limit: 3 }),
         ]);
         if (cancelled) return;
         setCategories(nextCategories);
@@ -374,6 +375,8 @@ function Home() {
           </div>
         </div>
       </section>
+
+      <ReviewCarousel />
 
       {/* Stats Section */}
       <section className="py-24 relative z-20 bg-darkbg">
