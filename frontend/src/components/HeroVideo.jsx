@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
+const HERO_PLAYBACK_RATE = 0.7;
+
 const HERO_VIDEOS = [
   {
     id: "hero-video-1",
@@ -16,6 +18,8 @@ const HERO_VIDEOS = [
       "https://res.cloudinary.com/gufssbcd/video/upload/c_limit,w_1920,q_auto:good,vc_h264,fl_progressive,f_mp4/v1790317208/deltatrophies/hero/hero-video-2.mp4",
     mobile:
       "https://res.cloudinary.com/gufssbcd/video/upload/c_limit,w_1280,q_auto:good,vc_h264,fl_progressive,f_mp4/v1790317208/deltatrophies/hero/hero-video-2.mp4",
+    poster:
+      "https://res.cloudinary.com/gufssbcd/video/upload/so_0,c_limit,w_1920,q_auto:best,f_jpg/v1790317208/deltatrophies/hero/hero-video-2.jpg",
   },
 ];
 
@@ -45,7 +49,7 @@ function HeroVideo() {
     });
   }, [activeIndex, playbackStarted]);
 
-  const playNextVideo = (finishedIndex) => {
+  const playNextVideo = async (finishedIndex) => {
     if (finishedIndex !== activeIndex) return;
 
     const nextIndex = (finishedIndex + 1) % HERO_VIDEOS.length;
@@ -53,10 +57,15 @@ function HeroVideo() {
     if (!nextVideo) return;
 
     nextVideo.currentTime = 0;
-    setActiveIndex(nextIndex);
-    void nextVideo.play().catch(() => {
-      // The poster remains visible if a browser temporarily blocks playback.
-    });
+    try {
+      // Keep the current frame visible until the next video is actually playing.
+      await nextVideo.play();
+      setActiveIndex((current) =>
+        current === finishedIndex ? nextIndex : current,
+      );
+    } catch {
+      // The current frame remains visible if playback is temporarily blocked.
+    }
   };
 
   return (
@@ -66,6 +75,7 @@ function HeroVideo() {
           key={video.id}
           ref={(element) => {
             videoRefs.current[index] = element;
+            if (element) element.playbackRate = HERO_PLAYBACK_RATE;
           }}
           autoPlay={index === 0 && playbackStarted}
           muted
@@ -75,7 +85,7 @@ function HeroVideo() {
           onEnded={() => playNextVideo(index)}
           onError={() => playNextVideo(index)}
           aria-hidden="true"
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-in-out ${
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ease-in-out ${
             activeIndex === index ? "opacity-100" : "opacity-0"
           }`}
         >
