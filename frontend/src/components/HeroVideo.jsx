@@ -1,22 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 
-// These clips are rendered at 0.7x with interpolated 60 FPS frames.
+// These clips preserve the original SDR colors at 0.7x with interpolated 60 FPS frames.
 const HERO_VIDEOS = [
   {
     id: "hero-video-1",
     desktop:
-      "https://res.cloudinary.com/gufssbcd/video/upload/c_limit,w_1920,q_auto:good,vc_h264,fl_progressive,f_mp4/v1790854366/deltatrophies/hero/hero-video-1-smooth-70.mp4",
+      "https://res.cloudinary.com/gufssbcd/video/upload/c_limit,w_1920,q_auto:good,vc_h264,fl_progressive,f_mp4/v1790855307/deltatrophies/hero/hero-video-1-smooth-70-color.mp4",
     mobile:
-      "https://res.cloudinary.com/gufssbcd/video/upload/c_limit,w_1280,q_auto:good,vc_h264,fl_progressive,f_mp4/v1790854366/deltatrophies/hero/hero-video-1-smooth-70.mp4",
+      "https://res.cloudinary.com/gufssbcd/video/upload/c_limit,w_1280,q_auto:good,vc_h264,fl_progressive,f_mp4/v1790855307/deltatrophies/hero/hero-video-1-smooth-70-color.mp4",
     poster:
       "https://res.cloudinary.com/gufssbcd/video/upload/so_0,c_limit,w_1920,q_auto:best,f_jpg/v1790317174/deltatrophies/hero/hero-video-1.jpg",
   },
   {
     id: "hero-video-2",
     desktop:
-      "https://res.cloudinary.com/gufssbcd/video/upload/c_limit,w_1920,q_auto:good,vc_h264,fl_progressive,f_mp4/v1790854392/deltatrophies/hero/hero-video-2-smooth-70.mp4",
+      "https://res.cloudinary.com/gufssbcd/video/upload/c_limit,w_1920,q_auto:good,vc_h264,fl_progressive,f_mp4/v1790855317/deltatrophies/hero/hero-video-2-smooth-70-color.mp4",
     mobile:
-      "https://res.cloudinary.com/gufssbcd/video/upload/c_limit,w_1280,q_auto:good,vc_h264,fl_progressive,f_mp4/v1790854392/deltatrophies/hero/hero-video-2-smooth-70.mp4",
+      "https://res.cloudinary.com/gufssbcd/video/upload/c_limit,w_1280,q_auto:good,vc_h264,fl_progressive,f_mp4/v1790855317/deltatrophies/hero/hero-video-2-smooth-70-color.mp4",
     poster:
       "https://res.cloudinary.com/gufssbcd/video/upload/so_0,c_limit,w_1920,q_auto:best,f_jpg/v1790317208/deltatrophies/hero/hero-video-2.jpg",
   },
