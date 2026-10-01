@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useState } from "react";
 
 // Placeholder names and copy. Replace these with verified customer reviews.
 const SAMPLE_REVIEWS = [
@@ -84,56 +84,13 @@ const SAMPLE_REVIEWS = [
   },
 ];
 
-function scrollReviews(track, direction) {
-  const card = track?.firstElementChild;
-  if (!card) return;
-
-  const gap = parseFloat(window.getComputedStyle(track).columnGap) || 0;
-  const step = card.getBoundingClientRect().width + gap;
-  const atStart = track.scrollLeft <= 1;
-  const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 1;
-
-  if (direction < 0 && atStart) {
-    track.scrollTo({ left: track.scrollWidth, behavior: "smooth" });
-  } else if (direction > 0 && atEnd) {
-    track.scrollTo({ left: 0, behavior: "smooth" });
-  } else {
-    track.scrollBy({ left: direction * step, behavior: "smooth" });
-  }
-}
-
 function ReviewCarousel() {
-  const trackRef = useRef(null);
-  const isPausedRef = useRef(false);
-
-  useEffect(() => {
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const timer = window.setInterval(() => {
-      if (isPausedRef.current || document.hidden || reducedMotion.matches) return;
-      scrollReviews(trackRef.current, 1);
-    }, 3500);
-
-    return () => window.clearInterval(timer);
-  }, []);
+  const [isPaused, setIsPaused] = useState(false);
 
   return (
     <section
       aria-labelledby="reviews-heading"
       className="relative z-20 bg-darkbg py-24"
-      onMouseEnter={() => {
-        isPausedRef.current = true;
-      }}
-      onMouseLeave={() => {
-        isPausedRef.current = false;
-      }}
-      onFocusCapture={() => {
-        isPausedRef.current = true;
-      }}
-      onBlurCapture={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) {
-          isPausedRef.current = false;
-        }
-      }}
     >
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
@@ -153,47 +110,48 @@ function ReviewCarousel() {
             </p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 motion-reduce:hidden">
             <button
               type="button"
-              onClick={() => scrollReviews(trackRef.current, -1)}
-              aria-label="Previous reviews"
+              onClick={() => setIsPaused((paused) => !paused)}
+              aria-label={isPaused ? "Play reviews" : "Pause reviews"}
               className="flex h-11 w-11 items-center justify-center border border-gold/40 text-gold transition-colors hover:bg-gold hover:text-darkbg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
             >
-              ←
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollReviews(trackRef.current, 1)}
-              aria-label="Next reviews"
-              className="flex h-11 w-11 items-center justify-center border border-gold/40 text-gold transition-colors hover:bg-gold hover:text-darkbg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
-            >
-              →
+              {isPaused ? "▶" : "Ⅱ"}
             </button>
           </div>
         </div>
 
         <div
-          ref={trackRef}
           aria-label="Review carousel"
-          className="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="review-marquee overflow-hidden"
         >
-          {SAMPLE_REVIEWS.map((review) => (
-            <article
-              key={review.name}
-              className="flex min-h-72 shrink-0 basis-full snap-start flex-col border border-gold/20 bg-white/[0.03] p-7 sm:basis-[calc(50%_-_0.625rem)] lg:basis-[calc(33.333%_-_0.833rem)]"
-            >
-              <span aria-hidden="true" className="mb-5 font-serif text-4xl leading-none text-gold">
-                “
-              </span>
-              <p className="flex-1 font-serif text-lg leading-relaxed text-white/90">
-                {review.quote}”
-              </p>
-              <div className="mt-8 border-t border-gold/20 pt-4 text-sm font-medium text-gold">
-                {review.name}
+          <div className={`review-marquee__track${isPaused ? " review-marquee__track--paused" : ""}`}>
+            {[0, 1].map((copy) => (
+              <div
+                key={copy}
+                aria-hidden={copy === 1 ? "true" : undefined}
+                className="review-marquee__group"
+              >
+                {SAMPLE_REVIEWS.map((review) => (
+                  <article
+                    key={review.name}
+                    className="review-marquee__card flex min-h-72 flex-col border border-gold/20 bg-white/[0.03] p-7"
+                  >
+                    <span aria-hidden="true" className="mb-5 font-serif text-4xl leading-none text-gold">
+                      “
+                    </span>
+                    <p className="flex-1 font-serif text-lg leading-relaxed text-white/90">
+                      {review.quote}”
+                    </p>
+                    <div className="mt-8 border-t border-gold/20 pt-4 text-sm font-medium text-gold">
+                      {review.name}
+                    </div>
+                  </article>
+                ))}
               </div>
-            </article>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>

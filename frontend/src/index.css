@@ -129,3 +129,61 @@ body {
     height: 92px;
   }
 }
+
+.review-marquee__track {
+  display: flex;
+  width: max-content;
+  animation: review-marquee-scroll 80s linear infinite;
+  will-change: transform;
+}
+
+.review-marquee__group {
+  display: flex;
+  flex-shrink: 0;
+  gap: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+.review-marquee__card {
+  flex: 0 0 auto;
+  width: calc(100vw - 3rem);
+}
+
+.review-marquee:hover .review-marquee__track,
+.review-marquee:focus-within .review-marquee__track,
+.review-marquee__track--paused {
+  animation-play-state: paused;
+}
+
+@keyframes review-marquee-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (min-width: 640px) {
+  .review-marquee__card {
+    width: calc((100vw - 4.25rem) / 2);
+  }
+}
+
+@media (min-width: 1024px) {
+  .review-marquee__card {
+    width: calc((min(100vw - 3rem, 77rem) - 2.5rem) / 3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .review-marquee {
+    overflow-x: auto;
+  }
+
+  .review-marquee__track {
+    animation: none;
+    will-change: auto;
+  }
+
+  .review-marquee__group:last-child {
+    display: none;
+  }
+}
