@@ -66,12 +66,6 @@ const QUANTITY_OPTIONS = [
     note: "Large event or organisation order",
     marker: "B",
   },
-  {
-    value: "Regular orders",
-    title: "Regular orders",
-    note: "Recurring business requirement",
-    marker: "C",
-  },
 ];
 
 const INITIAL_FORM = {
@@ -162,6 +156,20 @@ function SectionTitle({ number, children, className = "" }) {
   );
 }
 
+function RequirementBadge({ required = false }) {
+  return (
+    <span
+      className={`ml-1 inline-flex rounded border px-2 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wide ${
+        required
+          ? "border-gold/40 bg-gold/10 text-gold"
+          : "border-white/15 bg-white/[0.04] text-white/50"
+      }`}
+    >
+      {required ? "Required" : "Optional"}
+    </span>
+  );
+}
+
 function ChoiceCard({ name, option, selected, onChange, error }) {
   return (
     <label
@@ -178,6 +186,7 @@ function ChoiceCard({ name, option, selected, onChange, error }) {
         value={option.value}
         checked={selected}
         onChange={onChange}
+        required
         aria-invalid={Boolean(error)}
       />
       <span
@@ -235,7 +244,7 @@ function Field({
   return (
     <div className={wide ? "sm:col-span-2" : ""}>
       <label htmlFor={name} className="text-xs font-medium text-white/65">
-        {label} {required && <span className="text-gold">*</span>}
+        {label} <RequirementBadge required={required} />
       </label>
       <input
         id={name}
@@ -261,7 +270,7 @@ function SelectField({ label, name, value, options, onChange, error }) {
   return (
     <div className="mt-5 rounded-lg border border-gold/15 bg-black/20 p-4 sm:p-5">
       <label htmlFor={name} className="text-xs font-medium text-white/65">
-        {label} <span className="text-gold">*</span>
+        {label} <RequirementBadge required />
       </label>
       <select
         id={name}
@@ -582,7 +591,7 @@ function BulkEnquiry() {
                 <FiAward className="text-gold" /> Customisable awards
               </span>
               <span className="flex items-center gap-2">
-                <FiUsers className="text-gold" /> Bulk & recurring orders
+                <FiUsers className="text-gold" /> Bulk orders
               </span>
               <span className="flex items-center gap-2">
                 <FiShield className="text-gold" /> Private & secure
@@ -621,7 +630,7 @@ function BulkEnquiry() {
           <div>
             <p className="text-sm font-semibold text-white">Your requirement</p>
             <p className="mt-1 text-xs text-white/35">
-              Only the fields marked with * are required.
+              Each question and field is marked Required or Optional.
             </p>
           </div>
           <div
@@ -646,7 +655,7 @@ function BulkEnquiry() {
         <form onSubmit={handleSubmit} noValidate>
           <fieldset className="border-b border-white/10 px-5 pb-5 pt-7 sm:px-8 sm:pb-8 sm:pt-9">
             <SectionTitle number="01">
-              Why do you need trophies? <span className="text-gold">*</span>
+              Why do you need trophies? <RequirementBadge required />
             </SectionTitle>
             <div className="grid gap-3 xl:grid-cols-3">
               {PURPOSE_OPTIONS.map((option) => (
@@ -685,9 +694,9 @@ function BulkEnquiry() {
 
           <fieldset className="border-b border-white/10 px-5 pb-5 pt-7 sm:px-8 sm:pb-8 sm:pt-9">
             <SectionTitle number="02">
-              How many pieces do you need? <span className="text-gold">*</span>
+              How many pieces do you need? <RequirementBadge required />
             </SectionTitle>
-            <div className="grid gap-3 md:grid-cols-3">
+            <div className="grid gap-3 md:grid-cols-2">
               {QUANTITY_OPTIONS.map((option) => (
                 <ChoiceCard
                   key={option.value}
@@ -704,10 +713,6 @@ function BulkEnquiry() {
 
           <fieldset className="px-5 pb-5 pt-7 sm:px-8 sm:pb-8 sm:pt-9">
             <SectionTitle number="03">Your contact details</SectionTitle>
-            <p className="-mt-3 mb-6 text-xs text-white/35">
-              Fields marked with <span className="text-gold">*</span> are
-              required.
-            </p>
             <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
               <Field
                 label="Person name"
@@ -804,6 +809,7 @@ function BulkEnquiry() {
                 <span className="text-sm leading-6 text-white/65">
                   I confirm that my requirement has a minimum order value of{" "}
                   <strong className="text-white">₹10,000 or more.</strong>
+                  <RequirementBadge required />
                 </span>
               </label>
               <ErrorText id="minimumOrderConfirmed-error">
