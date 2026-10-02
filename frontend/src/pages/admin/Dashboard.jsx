@@ -5,13 +5,23 @@ import {
   isQuickEditEnabled,
   setQuickEditEnabled,
 } from '../../utils/adminQuickEdit';
+import { getCachedSiteTheme, updateSiteTheme } from '../../utils/siteTheme';
 
 function Dashboard() {
   const [stats, setStats] = useState({ products: 0, leads: 0, inquiries: 0 });
   const [quickEdit, setQuickEdit] = useState(isQuickEditEnabled);
+  const [siteTheme, setSiteTheme] = useState(getCachedSiteTheme);
+  const [savingTheme, setSavingTheme] = useState(false);
+  const [themeMessage, setThemeMessage] = useState('');
   const [publishingCatalogue, setPublishingCatalogue] = useState(false);
   const [catalogueMessage, setCatalogueMessage] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const syncTheme = (event) => setSiteTheme(event.detail);
+    window.addEventListener('delta:theme-change', syncTheme);
+    return () => window.removeEventListener('delta:theme-change', syncTheme);
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -41,6 +51,21 @@ function Dashboard() {
     const enabled = !quickEdit;
     setQuickEditEnabled(enabled);
     setQuickEdit(enabled);
+  };
+
+  const handleThemeChange = async (theme) => {
+    if (theme === siteTheme || savingTheme) return;
+    setSavingTheme(true);
+    setThemeMessage('');
+    try {
+      const savedTheme = await updateSiteTheme(theme);
+      setSiteTheme(savedTheme);
+      setThemeMessage(`${savedTheme === 'light' ? 'Light' : 'Dark'} theme is now live on the public website.`);
+    } catch (error) {
+      setThemeMessage(error.response?.data?.error || 'Could not update the theme. Please try again.');
+    } finally {
+      setSavingTheme(false);
+    }
   };
 
   const handlePublishCatalogue = async () => {
@@ -79,6 +104,29 @@ function Dashboard() {
             Logout
           </button>
         </div>
+
+        <section className="mb-12 flex flex-col gap-5 border border-gold/25 bg-white/[0.03] p-6 sm:flex-row sm:items-center sm:justify-between" aria-labelledby="site-theme-heading">
+          <div>
+            <p className="text-gold text-xs font-semibold uppercase tracking-[0.2em]">Public website appearance</p>
+            <h2 id="site-theme-heading" className="mt-2 text-lg font-semibold text-white">Website theme</h2>
+            <p className="mt-1 max-w-2xl text-sm text-white/55">Choose the theme visitors see across the website. Dark restores the original design.</p>
+            {themeMessage && <p className="mt-3 text-sm text-gold" role="status">{themeMessage}</p>}
+          </div>
+          <div className="flex shrink-0 gap-2" role="group" aria-label="Public website theme">
+            {['dark', 'light'].map((theme) => (
+              <button
+                key={theme}
+                type="button"
+                onClick={() => handleThemeChange(theme)}
+                disabled={savingTheme}
+                aria-pressed={siteTheme === theme}
+                className={`border px-5 py-3 text-xs font-bold uppercase tracking-widest transition-colors disabled:opacity-50 ${siteTheme === theme ? 'border-gold bg-gold text-darkbg' : 'border-gold/30 text-gold hover:border-gold'}`}
+              >
+                {theme === 'dark' ? 'Dark' : 'Light'}
+              </button>
+            ))}
+          </div>
+        </section>
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">

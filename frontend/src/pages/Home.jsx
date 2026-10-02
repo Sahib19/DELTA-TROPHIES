@@ -90,7 +90,7 @@ function Home() {
         structuredData={[organizationSchema, websiteSchema]}
       />
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section className="home-hero relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Ambient Premium Glow Layer */}
         <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-gold/10 rounded-full blur-[150px] pointer-events-none z-10" />
         <div className="absolute bottom-1/4 right-10 w-[300px] h-[300px] bg-white/5 rounded-full blur-[120px] pointer-events-none z-10" />

@@ -36,4 +36,10 @@ describe('application shell', () => {
     expect(response.status).toBe(422);
     expect(response.body).toMatchObject({ success: false, code: 'VALIDATION_ERROR' });
   });
+
+  it('requires admin authentication to change the public theme', async () => {
+    const response = await request(app).put('/api/v1/admin/site/theme').send({ theme: 'light' });
+    expect(response.status).toBe(401);
+    expect(response.body).toMatchObject({ success: false, code: 'AUTHENTICATION_REQUIRED' });
+  });
 });

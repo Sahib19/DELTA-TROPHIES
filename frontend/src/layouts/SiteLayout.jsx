@@ -7,7 +7,7 @@ import { FaWhatsapp } from "react-icons/fa";
 
 function SiteLayout() {
   return (
-    <>
+    <div className="site-shell">
       <Navbar />
       <LeadPopup />
       <Outlet />
@@ -33,7 +33,7 @@ function SiteLayout() {
       </a>
 
       <Footer />
-    </>
+    </div>
   );
 }
 

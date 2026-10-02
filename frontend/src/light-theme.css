@@ -1,0 +1,193 @@
+/* Public light theme only. The dark utility styles remain the untouched default. */
+html[data-public-theme="light"] .site-shell {
+  --light-paper: #faf7f0;
+  --light-surface: #fffdfa;
+  --light-ink: #29251e;
+  --light-muted: #675f52;
+  --light-line: #ddd2bf;
+  --light-accent: #8b641f;
+  min-height: 100vh;
+  background: linear-gradient(145deg, #fffdfa 0%, #faf7f0 56%, #f5efe3 100%);
+  color: var(--light-ink);
+}
+
+html[data-public-theme="light"] .site-shell [class~="bg-darkbg"],
+html[data-public-theme="light"] .site-shell [class~="bg-darkbg/80"],
+html[data-public-theme="light"] .site-shell [class~="bg-darkbg/95"] {
+  background-color: var(--light-paper);
+}
+
+html[data-public-theme="light"] .site-shell nav[class~="fixed"] {
+  background: rgb(255 253 250 / 94%);
+  border-bottom-color: rgb(139 100 31 / 18%);
+  box-shadow: 0 10px 35px rgb(78 57 24 / 8%);
+}
+
+html[data-public-theme="light"] .site-shell nav[class~="fixed"] [class~="bg-darkbg/95"] {
+  background: rgb(255 253 250 / 98%);
+}
+
+html[data-public-theme="light"] .site-shell [class~="bg-[#101010]/95"],
+html[data-public-theme="light"] .site-shell [class~="bg-[#121318]"],
+html[data-public-theme="light"] .site-shell [class~="bg-[#181a20]"],
+html[data-public-theme="light"] .site-shell [class~="bg-[#111]"] {
+  background-color: var(--light-surface);
+}
+
+html[data-public-theme="light"] .site-shell [class~="bg-white/5"],
+html[data-public-theme="light"] .site-shell [class~="bg-white/10"],
+html[data-public-theme="light"] .site-shell [class~="bg-white/[0.01]"],
+html[data-public-theme="light"] .site-shell [class~="bg-white/[0.02]"],
+html[data-public-theme="light"] .site-shell [class~="bg-white/[0.025]"],
+html[data-public-theme="light"] .site-shell [class~="bg-white/[0.03]"],
+html[data-public-theme="light"] .site-shell [class~="bg-white/[0.04]"] {
+  background-color: rgb(198 174 126 / 8%);
+}
+
+html[data-public-theme="light"] .site-shell [class~="bg-black/20"],
+html[data-public-theme="light"] .site-shell [class~="bg-black/25"],
+html[data-public-theme="light"] .site-shell [class~="bg-black/30"] {
+  background-color: rgb(219 205 177 / 20%);
+}
+
+html[data-public-theme="light"] .site-shell [class~="text-white"],
+html[data-public-theme="light"] .site-shell [class~="text-white/90"],
+html[data-public-theme="light"] .site-shell [class~="text-white/80"] {
+  color: var(--light-ink);
+}
+
+html[data-public-theme="light"] .site-shell [class~="text-white/70"],
+html[data-public-theme="light"] .site-shell [class~="text-white/65"],
+html[data-public-theme="light"] .site-shell [class~="text-white/60"],
+html[data-public-theme="light"] .site-shell [class~="text-white/55"],
+html[data-public-theme="light"] .site-shell [class~="text-white/50"] {
+  color: #5f574b;
+}
+
+html[data-public-theme="light"] .site-shell [class~="text-white/45"],
+html[data-public-theme="light"] .site-shell [class~="text-white/40"],
+html[data-public-theme="light"] .site-shell [class~="text-white/35"],
+html[data-public-theme="light"] .site-shell [class~="text-white/30"],
+html[data-public-theme="light"] .site-shell [class~="text-white/25"] {
+  color: #766c5e;
+}
+
+html[data-public-theme="light"] .site-shell [class~="text-gold"],
+html[data-public-theme="light"] .site-shell [class~="text-gold/70"],
+html[data-public-theme="light"] .site-shell [class~="text-gold/80"],
+html[data-public-theme="light"] .site-shell [class~="text-yellow-400"] {
+  color: var(--light-accent);
+}
+
+html[data-public-theme="light"] .site-shell [class~="border-gold/10"],
+html[data-public-theme="light"] .site-shell [class~="border-gold/15"],
+html[data-public-theme="light"] .site-shell [class~="border-gold/20"],
+html[data-public-theme="light"] .site-shell [class~="border-gold/25"],
+html[data-public-theme="light"] .site-shell [class~="border-gold/30"],
+html[data-public-theme="light"] .site-shell [class~="border-white/5"],
+html[data-public-theme="light"] .site-shell [class~="border-white/10"],
+html[data-public-theme="light"] .site-shell [class~="border-white/20"],
+html[data-public-theme="light"] .site-shell [class*="border-white/["] {
+  border-color: var(--light-line);
+}
+
+html[data-public-theme="light"] .site-shell [class~="placeholder-white/20"]::placeholder,
+html[data-public-theme="light"] .site-shell [class~="placeholder-white/30"]::placeholder,
+html[data-public-theme="light"] .site-shell [class~="placeholder-white/25"]::placeholder {
+  color: #8a8174;
+}
+
+html[data-public-theme="light"] .site-shell :is(input, textarea, select) {
+  color: var(--light-ink);
+  background-color: rgb(255 253 250 / 90%);
+  border-color: var(--light-line);
+}
+
+html[data-public-theme="light"] .site-shell :is(input, textarea, select):focus {
+  border-color: #a47b36;
+}
+
+html[data-public-theme="light"] .site-shell select option {
+  background: #fffdfa;
+  color: var(--light-ink);
+}
+
+html[data-public-theme="light"] .site-shell [class~="bg-gold"]:is(a, button),
+html[data-public-theme="light"] .site-shell [class~="bg-yellow-400"]:is(a, button),
+html[data-public-theme="light"] .site-shell [class~="from-gold"]:is(a, button) {
+  color: #231c12;
+}
+
+html[data-public-theme="light"] .site-shell [class~="hover:text-gold"]:hover,
+html[data-public-theme="light"] .site-shell [class~="group-hover:text-gold"]:hover,
+html[data-public-theme="light"] .site-shell .group:hover [class~="group-hover:text-gold"] {
+  color: #765114;
+}
+
+html[data-public-theme="light"] .site-shell [class*="from-[#17150e]"] {
+  background: linear-gradient(135deg, #fffdfa 0%, #f8f2e6 55%, #efe3cf 100%);
+}
+
+html[data-public-theme="light"] .site-shell [class*="from-white/[0.01]"] {
+  background: linear-gradient(180deg, #f7f1e6 0%, #fffdfa 100%);
+}
+
+html[data-public-theme="light"] .site-shell [class~="review-marquee__card"],
+html[data-public-theme="light"] .site-shell [class~="review-marquee__card"] [class~="border-gold/20"] {
+  border-color: #e2d4b9;
+}
+
+html[data-public-theme="light"] .site-shell [class~="review-marquee__card"] {
+  background: linear-gradient(145deg, #fffefa 0%, #f8f1e4 100%);
+  box-shadow: 0 14px 42px rgb(103 75 33 / 8%);
+}
+
+html[data-public-theme="light"] .site-shell [class~="review-marquee__card"] [class~="text-white/90"] {
+  color: #3d3529;
+}
+
+html[data-public-theme="light"] .site-shell [class~="home-hero"],
+html[data-public-theme="light"] .site-shell [class~="home-hero"] [class~="bg-darkbg"] {
+  background-color: #0a0a0a;
+}
+
+html[data-public-theme="light"] .site-shell [class~="home-hero"] [class~="text-white"],
+html[data-public-theme="light"] .site-shell [class~="home-hero"] [class~="text-white/30"] {
+  color: #fff;
+}
+
+html[data-public-theme="light"] .site-shell [class~="home-hero"] [class~="text-yellow-400"] {
+  color: #facc15;
+}
+
+html[data-public-theme="light"] .site-shell [class~="home-hero"] [class~="bg-white/5"] {
+  background-color: rgb(255 255 255 / 5%);
+}
+
+html[data-public-theme="light"] .site-shell [class~="home-hero"] [class~="border-white/20"] {
+  border-color: rgb(255 255 255 / 35%);
+}
+
+html[data-public-theme="light"] .site-shell [class~="bg-[#25D366]"] {
+  color: #fff;
+}
+
+html[data-public-theme="light"] .site-shell [class~="bg-[#121318]"][class~="pointer-events-none"] {
+  background-color: #2d2923;
+  color: #fff;
+}
+
+html[data-public-theme="light"] .site-shell [class~="bg-black/70"] {
+  background-color: rgb(28 23 16 / 55%);
+}
+
+/* Text placed over photos and the gallery viewer stays white for contrast. */
+html[data-public-theme="light"] .site-shell [class~="from-black/80"] [class~="text-white"],
+html[data-public-theme="light"] .site-shell [class~="bg-black/90"] [class~="text-white/70"],
+html[data-public-theme="light"] .site-shell [class~="group-hover:bg-black/30"] [class~="text-white"] {
+  color: #fff;
+}
+
+html[data-public-theme="light"] .site-shell [class~="group-hover:bg-black/30"]:hover {
+  background-color: rgb(0 0 0 / 38%);
+}
