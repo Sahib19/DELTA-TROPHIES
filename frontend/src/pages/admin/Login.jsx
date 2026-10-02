@@ -7,16 +7,33 @@ function AdminLogin() {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setError('');
+    setIsSubmitting(true);
     try {
       const res = await API.post('/auth/login', credentials);
       localStorage.setItem('adminToken', res.data.token);
       navigate('/admin/dashboard');
-    } catch {
-      setError('Invalid username or password');
+    } catch (requestError) {
+      const status = requestError.response?.status;
+      if (status === 401) {
+        setError('Invalid email or password. Please check both and try again.');
+      } else if (status === 423) {
+        setError('Too many incorrect attempts. Please try again in 15 minutes.');
+      } else if (status === 429) {
+        setError('Too many login requests. Please wait a few minutes and try again.');
+      } else if (!requestError.response) {
+        setError('Could not connect to the server. Please check your connection and try again.');
+      } else {
+        setError('Sign in is temporarily unavailable. Please try again shortly.');
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -69,8 +86,9 @@ function AdminLogin() {
             </div>
             <button
               type="submit"
-              className="bg-gold text-darkbg font-bold py-3 tracking-widest uppercase text-sm hover:bg-gold/90 transition-colors">
-              Sign In
+              disabled={isSubmitting}
+              className="bg-gold text-darkbg font-bold py-3 tracking-widest uppercase text-sm hover:bg-gold/90 transition-colors disabled:cursor-wait disabled:opacity-70">
+              {isSubmitting ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
         </div>
