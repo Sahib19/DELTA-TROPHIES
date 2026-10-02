@@ -78,10 +78,13 @@ function ProductDetail() {
   }, [id, catalogueRevision]);
 
   useEffect(() => {
-    if (!product) return;
+    // React Router reuses this page when moving between product URLs. Wait for
+    // the new product before correcting its slug, or the previous product can
+    // redirect the click back to its own URL.
+    if (!product || product.id !== id) return;
     const expectedPath = productPath(product);
     if (slug !== product.slug) navigate(expectedPath, { replace: true });
-  }, [navigate, product, slug]);
+  }, [id, navigate, product, slug]);
 
   useEffect(() => {
     if (!product?.category_slug) return undefined;
@@ -129,7 +132,7 @@ function ProductDetail() {
     }
   };
 
-  if (loading)
+  if (loading || (product && product.id !== id))
     return (
       <div className="bg-darkbg min-h-screen flex items-center justify-center">
         <p className="text-white/30 tracking-widest uppercase text-sm">
