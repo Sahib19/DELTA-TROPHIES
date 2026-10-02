@@ -42,4 +42,16 @@ describe('application shell', () => {
     expect(response.status).toBe(401);
     expect(response.body).toMatchObject({ success: false, code: 'AUTHENTICATION_REQUIRED' });
   });
+
+  it('requires admin authentication to assign or delete leads and inquiries', async () => {
+    const id = '507f1f77bcf86cd799439011';
+    for (const path of [`/api/v1/inquiries/leads/${id}`, `/api/v1/inquiries/all/${id}`]) {
+      const assignment = await request(app)
+        .patch(`${path}/assignment`)
+        .send({ assignment_status: 'assigned' });
+      const deletion = await request(app).delete(path);
+      expect(assignment.status).toBe(401);
+      expect(deletion.status).toBe(401);
+    }
+  });
 });

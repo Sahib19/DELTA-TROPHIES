@@ -8,6 +8,7 @@ export interface Inquiry {
   product?: Types.ObjectId | null;
   message?: string;
   status: 'new' | 'contacted' | 'closed';
+  assignmentStatus: 'unassigned' | 'assigned';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,6 +26,11 @@ const inquirySchema = new Schema<Inquiry>(
       enum: ['new', 'contacted', 'closed'],
       default: 'new',
       index: true,
+    },
+    assignmentStatus: {
+      type: String,
+      enum: ['unassigned', 'assigned'],
+      default: 'unassigned',
     },
   },
   {

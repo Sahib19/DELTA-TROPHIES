@@ -6,6 +6,7 @@ export interface Lead {
   email: string;
   phone: string;
   source: 'popup';
+  assignmentStatus: 'unassigned' | 'assigned';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -16,6 +17,11 @@ const leadSchema = new Schema<Lead>(
     email: { type: String, required: true, lowercase: true, trim: true, maxlength: 254 },
     phone: { type: String, required: true, trim: true, maxlength: 20 },
     source: { type: String, required: true, enum: ['popup'], default: 'popup' },
+    assignmentStatus: {
+      type: String,
+      enum: ['unassigned', 'assigned'],
+      default: 'unassigned',
+    },
   },
   {
     timestamps: true,

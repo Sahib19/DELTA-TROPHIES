@@ -8,6 +8,7 @@ import type {
   CreateInquiryRequest,
   CreateLeadRequest,
   InquiryListRequest,
+  UpdateAssignmentRequest,
 } from '../validation/inquiry.schemas.js';
 
 export interface PageResult<T> {
@@ -20,6 +21,7 @@ export interface LeadDto {
   name: string;
   email: string;
   phone: string;
+  assignment_status: 'unassigned' | 'assigned';
   created_at: Date;
 }
 
@@ -76,6 +78,7 @@ export async function listLeads(query: InquiryListRequest['query']): Promise<Pag
       name: lead.name,
       email: lead.email,
       phone: lead.phone,
+      assignment_status: lead.assignmentStatus ?? 'unassigned',
       created_at: lead.createdAt,
     })),
     pagination: pagination(query.page, query.limit, total),
@@ -105,6 +108,7 @@ export async function listInquiries(
       name: inquiry.name,
       email: inquiry.email,
       phone: inquiry.phone,
+      assignment_status: inquiry.assignmentStatus ?? 'unassigned',
       product_id: inquiry.product?._id.toString() ?? null,
       product_name: inquiry.product?.name ?? null,
       message: inquiry.message ?? null,
@@ -113,4 +117,38 @@ export async function listInquiries(
     })),
     pagination: pagination(query.page, query.limit, total),
   };
+}
+
+export async function updateLeadAssignment(
+  id: string,
+  assignmentStatus: UpdateAssignmentRequest['body']['assignment_status'],
+): Promise<void> {
+  const updated = await LeadModel.findByIdAndUpdate(
+    toObjectId(id),
+    { $set: { assignmentStatus } },
+    { runValidators: true },
+  ).exec();
+  if (!updated) throw new ApiError(404, 'LEAD_NOT_FOUND', 'Lead not found');
+}
+
+export async function updateInquiryAssignment(
+  id: string,
+  assignmentStatus: UpdateAssignmentRequest['body']['assignment_status'],
+): Promise<void> {
+  const updated = await InquiryModel.findByIdAndUpdate(
+    toObjectId(id),
+    { $set: { assignmentStatus } },
+    { runValidators: true },
+  ).exec();
+  if (!updated) throw new ApiError(404, 'INQUIRY_NOT_FOUND', 'Inquiry not found');
+}
+
+export async function deleteLead(id: string): Promise<void> {
+  const deleted = await LeadModel.findByIdAndDelete(toObjectId(id)).exec();
+  if (!deleted) throw new ApiError(404, 'LEAD_NOT_FOUND', 'Lead not found');
+}
+
+export async function deleteInquiry(id: string): Promise<void> {
+  const deleted = await InquiryModel.findByIdAndDelete(toObjectId(id)).exec();
+  if (!deleted) throw new ApiError(404, 'INQUIRY_NOT_FOUND', 'Inquiry not found');
 }

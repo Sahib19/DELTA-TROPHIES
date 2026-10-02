@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { createInquiryRequestSchema } from '../src/validation/inquiry.schemas.js';
+import {
+  createInquiryRequestSchema,
+  deleteEntryRequestSchema,
+  updateAssignmentRequestSchema,
+} from '../src/validation/inquiry.schemas.js';
 import { productListRequestSchema } from '../src/validation/product.schemas.js';
 
 describe('request schemas', () => {
@@ -27,5 +31,27 @@ describe('request schemas', () => {
 
     expect(result.body.email).toBe('test@example.com');
     expect(result.body.name).toBe('Test User');
+  });
+
+  it('accepts assignment changes and rejects invalid statuses or IDs', () => {
+    const request = {
+      body: { assignment_status: 'assigned' },
+      params: { id: '507f1f77bcf86cd799439011' },
+      query: {},
+    };
+    expect(updateAssignmentRequestSchema.parse(request).body.assignment_status).toBe('assigned');
+    expect(
+      updateAssignmentRequestSchema.safeParse({
+        ...request,
+        body: { assignment_status: 'closed' },
+      }).success,
+    ).toBe(false);
+    expect(
+      deleteEntryRequestSchema.safeParse({
+        ...request,
+        body: {},
+        params: { id: 'invalid' },
+      }).success,
+    ).toBe(false);
   });
 });

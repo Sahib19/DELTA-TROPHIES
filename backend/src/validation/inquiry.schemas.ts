@@ -44,6 +44,22 @@ export const inquiryListRequestSchema = z.object({
   }),
 });
 
+const entryParams = z.object({ id: objectIdSchema });
+
+export const updateAssignmentRequestSchema = z.object({
+  body: z.object({ assignment_status: z.enum(['unassigned', 'assigned']) }).strict(),
+  query: emptyObjectSchema,
+  params: entryParams,
+});
+
+export const deleteEntryRequestSchema = z.object({
+  body: emptyObjectSchema,
+  query: emptyObjectSchema,
+  params: entryParams,
+});
+
 export type CreateLeadRequest = z.infer<typeof createLeadRequestSchema>;
 export type CreateInquiryRequest = z.infer<typeof createInquiryRequestSchema>;
 export type InquiryListRequest = z.infer<typeof inquiryListRequestSchema>;
+export type UpdateAssignmentRequest = z.infer<typeof updateAssignmentRequestSchema>;
+export type DeleteEntryRequest = z.infer<typeof deleteEntryRequestSchema>;
