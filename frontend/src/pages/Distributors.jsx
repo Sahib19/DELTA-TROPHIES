@@ -42,7 +42,7 @@ const distributors = [
   },
   {
     id: 5,
-    shopName: "Sunny Trophies",
+    shopName: "Delta Trophies",
     contactPerson: "Sunny",
     phones: ["97115 55486"],
     email: null,
