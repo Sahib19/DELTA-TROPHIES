@@ -1,3 +1,5 @@
+import { splitAccessories } from "./splitAccessories";
+
 const FALLBACK_CATALOGUE_URL = "/catalogue.json";
 const DEFAULT_REMOTE_CATALOGUE_URL =
   "https://res.cloudinary.com/gufssbcd/raw/upload/deltatrophies/catalog/catalogue.json";
@@ -23,7 +25,7 @@ function isCatalogue(value) {
 function readCachedCatalogue() {
   try {
     const value = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
-    return isCatalogue(value) ? value : null;
+    return isCatalogue(value) ? splitAccessories(value) : null;
   } catch {
     return null;
   }
@@ -50,10 +52,10 @@ function acceptCatalogue(catalogue) {
     return currentCatalogue;
   }
   const changed = currentCatalogue?.version !== catalogue.version;
-  currentCatalogue = catalogue;
+  currentCatalogue = splitAccessories(catalogue);
   storeCatalogue(catalogue);
-  if (changed) listeners.forEach((listener) => listener(catalogue));
-  return catalogue;
+  if (changed) listeners.forEach((listener) => listener(currentCatalogue));
+  return currentCatalogue;
 }
 
 async function fetchCatalogue(url, cache) {

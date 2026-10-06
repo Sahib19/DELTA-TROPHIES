@@ -63,10 +63,20 @@ export const categorySeoBySlug: Record<string, CategorySeoDefinition> = {
     description: 'Tall designer cup trophies with colorful columns and distinctive trophy toppers.',
     searchTerms: ['designer trophy', 'tall trophy cup', 'winner trophy', 'column trophy'],
   },
-  'bases-and-accessories': {
-    name: 'Trophy Bases, Medals & Accessories',
-    description: 'Trophy bases, medals, sports figures, badges and components for award assembly.',
-    searchTerms: ['trophy accessories', 'trophy base', 'award medal', 'trophy figure'],
+  'trophy-bases': {
+    name: 'Trophy Bases',
+    description: 'Bases and plinths for custom trophy and award assembly.',
+    searchTerms: ['trophy base', 'award base', 'trophy plinth'],
+  },
+  medals: {
+    name: 'Medals',
+    description: 'Award medals for sporting events, schools and celebrations.',
+    searchTerms: ['award medal', 'sports medal', 'winner medal'],
+  },
+  'trophy-accessories': {
+    name: 'Trophy Accessories',
+    description: 'Sports figures, badges, pins and other trophy components.',
+    searchTerms: ['trophy accessories', 'trophy figure', 'award badge'],
   },
 };
 
@@ -819,7 +829,8 @@ function accessoryName(sku: string): string {
 }
 
 export function curatedProductName(sku: string, categorySlug: string): string {
-  if (categorySlug === 'bases-and-accessories') return accessoryName(sku);
+  if (['trophy-bases', 'medals', 'trophy-accessories'].includes(categorySlug))
+    return accessoryName(sku);
   const name = curatedNames.get(sku);
   if (!name) throw new Error(`Missing curated SEO name for ${sku}`);
   return name;

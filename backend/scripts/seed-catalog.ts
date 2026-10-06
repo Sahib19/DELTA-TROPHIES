@@ -14,7 +14,9 @@ const categories = [
   ['Special Awards & Frames', 'la-aca-ra-f-models', '9. LA,ACA,RA,F, MODEL'],
   ['Fibre Cups (FC)', 'fibre-cups', '10. FIBRE CUPS (FC )'],
   ['IC Models', 'ic-models', '11. IC MODEL'],
-  ['Bases & Accessories', 'bases-and-accessories', '12. BASE AND ACS'],
+  ['Trophy Bases', 'trophy-bases', '12. BASE AND ACS'],
+  ['Medals', 'medals', '12. BASE AND ACS'],
+  ['Trophy Accessories', 'trophy-accessories', '12. BASE AND ACS'],
 ] as const;
 
 async function main(): Promise<void> {
