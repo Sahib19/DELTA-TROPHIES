@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import API from "../api/axios";
@@ -10,6 +10,7 @@ import {
 import getImageUrl, { getOptimizedImageUrl } from "../utils/getImageUrl";
 import { jsonLd, productPath, SITE_NAME, SITE_URL } from "../config/seo";
 import ProductCard from "../components/ProductCard";
+import ProductImageLightbox from "../components/ProductImageLightbox";
 
 function restoreOriginalImage(event, path) {
   const originalImage = getImageUrl(path);
@@ -29,6 +30,8 @@ function ProductDetail() {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
+  const closeImagePreview = useCallback(() => setImagePreviewOpen(false), []);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -56,6 +59,7 @@ function ProductDetail() {
       setProductNavigation({ previous: null, next: null });
       setRelatedProducts([]);
       setSelectedImage(0);
+      setImagePreviewOpen(false);
       setSubmitted(false);
       setSubmitError("");
       try {
@@ -270,11 +274,13 @@ function ProductDetail() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Images */}
           <div>
-            <div
-              className="bg-white border border-gold/20 flex items-center justify-center mb-4"
-              style={{ height: "600px" }}
-            >
-              {product.images && product.images.length > 0 ? (
+            {product.images && product.images.length > 0 ? (
+              <button
+                type="button"
+                onClick={() => setImagePreviewOpen(true)}
+                aria-label={`View larger image of ${product.name}`}
+                className="group relative mb-4 flex h-[420px] w-full cursor-zoom-in items-center justify-center border border-gold/20 bg-white transition-colors hover:border-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold sm:h-[520px] lg:h-[600px]"
+              >
                 <img
                   src={getOptimizedImageUrl(product.images[selectedImage], {
                     width: 1600,
@@ -288,17 +294,17 @@ function ProductDetail() {
                   onError={(event) =>
                     restoreOriginalImage(event, product.images[selectedImage])
                   }
-                  style={{
-                    maxHeight: "600px",
-                    maxWidth: "100%",
-                    objectFit: "contain",
-                    padding: "16px",
-                  }}
+                  className="h-full w-full object-contain p-4"
                 />
-              ) : (
+                <span className="absolute bottom-4 right-4 border border-gold/50 bg-darkbg/90 px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-gold transition-colors group-hover:border-gold">
+                  View larger ↗
+                </span>
+              </button>
+            ) : (
+              <div className="mb-4 flex h-[420px] items-center justify-center border border-gold/20 bg-white sm:h-[520px] lg:h-[600px]">
                 <p className="text-darkbg/30 text-sm">No Image Available</p>
-              )}
-            </div>
+              </div>
+            )}
 
             {product.images && product.images.length > 1 && (
               <div className="flex gap-2 flex-wrap">
@@ -521,6 +527,14 @@ function ProductDetail() {
           </section>
         )}
       </div>
+      {imagePreviewOpen && product.images?.[selectedImage] && (
+        <ProductImageLightbox
+          image={product.images[selectedImage]}
+          alt={product.image_alt || product.name}
+          name={product.name}
+          onClose={closeImagePreview}
+        />
+      )}
     </div>
   );
 }
