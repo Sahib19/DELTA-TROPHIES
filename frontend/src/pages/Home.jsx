@@ -95,7 +95,7 @@ function Home() {
         <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-gold/10 rounded-full blur-[150px] pointer-events-none z-10" />
         <div className="absolute bottom-1/4 right-10 w-[300px] h-[300px] bg-white/5 rounded-full blur-[120px] pointer-events-none z-10" />
 
-        {/* Sequential Cloudinary-optimized hero videos */}
+        {/* Original joined hero video */}
         <HeroVideo />
         {/* Big Background Typography */}
         <div className="absolute right-[-2%] bottom-[12%] select-none pointer-events-none hidden lg:block z-0">
