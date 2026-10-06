@@ -10,31 +10,32 @@ const HERO_VIDEOS = {
     "https://res.cloudinary.com/gufssbcd/video/upload/v1791275321/deltatrophies/hero/hero-web-1440p60-h264-sdr.mp4",
 };
 
-function preloaderHasFinished() {
-  try {
-    return sessionStorage.getItem("delta-preloader-shown") === "true";
-  } catch {
-    return false;
-  }
-}
-
 function HeroVideo() {
   const videoRef = useRef(null);
-  const [playbackStarted, setPlaybackStarted] = useState(preloaderHasFinished);
   const [videoFailed, setVideoFailed] = useState(false);
 
   useEffect(() => {
-    const startPlayback = () => setPlaybackStarted(true);
-    window.addEventListener("delta:preloader-exit", startPlayback);
-    return () => window.removeEventListener("delta:preloader-exit", startPlayback);
-  }, []);
+    const video = videoRef.current;
+    if (!video) return undefined;
 
-  useEffect(() => {
-    if (!playbackStarted) return;
-    void videoRef.current?.play().catch(() => {
-      // Muted playback normally starts automatically.
-    });
-  }, [playbackStarted]);
+    const startPlayback = () => {
+      if (document.visibilityState === "hidden" || !video.paused) return;
+      void video.play().catch(() => {
+        // Retry when media is ready or the page becomes visible.
+      });
+    };
+
+    startPlayback();
+    video.addEventListener("canplay", startPlayback);
+    document.addEventListener("visibilitychange", startPlayback);
+    window.addEventListener("pageshow", startPlayback);
+
+    return () => {
+      video.removeEventListener("canplay", startPlayback);
+      document.removeEventListener("visibilitychange", startPlayback);
+      window.removeEventListener("pageshow", startPlayback);
+    };
+  }, []);
 
   return (
     <div
@@ -43,7 +44,7 @@ function HeroVideo() {
     >
       <video
         ref={videoRef}
-        autoPlay={playbackStarted}
+        autoPlay
         loop
         muted
         playsInline
